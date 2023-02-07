@@ -134,7 +134,7 @@ KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 		sha256_final(&ctx);
 
 		// On the final iteration, we don't want to convert the digest into the ASCII hex representations
-		if (LOOP_POS != total_iteration_count - 1)
+		if (j != total_iteration_count - 1)
 		{
 			// Convert the raw integers into their ASCII hex representations :)
 			for (u32 k = 0; k < hash_u32_length; k++)
