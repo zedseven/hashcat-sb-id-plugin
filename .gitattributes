@@ -1,1 +1,2 @@
-src/*.cl linguist-language=Cuda
+**/*.cl linguist-language=Cuda
+**/*.cl linguist-detectable=true
