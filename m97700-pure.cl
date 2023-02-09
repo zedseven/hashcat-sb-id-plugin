@@ -1,5 +1,5 @@
 /**
- * Author......: See docs/credits.txt
+ * Author......: Zacchary Dempsey-Plante
  * License.....: MIT
  * Based on kernels `m01410_a3-pure.cl` (fast SHA-256 kernel) and `m00500-pure.cl` (slow MD5 iterated kernel)
  */
@@ -18,7 +18,7 @@
 
 #define COMPARE_M M2S(INCLUDE_PATH/inc_comp_multi.cl)
 
-u32 u8_len_to_u32_len(u32 len)
+/*u32 u8_len_to_u32_len(u32 len)
 {
 	return len / U8S_PER_U32 + (len % U8S_PER_U32 == 0 ? 0 : 1);
 }
@@ -35,7 +35,7 @@ void print_debug_info(sb_tmp_t *tmp)
 		}
 	}
 	printf("\n");
-}
+}*/
 
 void to_ascii_hex_representation(u32 *destination, u32 num)
 {
@@ -83,8 +83,6 @@ KERNEL_FQ void m97700_init (KERN_ATTR_TMPS (sb_tmp_t))
 		// For some reason, Hashcat provides the password in little-endian byte order, so they need to be swapped
 		tmps[gid].digest_buf[idx] = hc_swap32(pws[gid].i[idx]);
 	}
-
-//	printf("init\n");
 }
 
 // This is where the actual processing takes place
@@ -92,7 +90,6 @@ KERNEL_FQ void m97700_init (KERN_ATTR_TMPS (sb_tmp_t))
 // LOOP_POS is the overall position out of the number of iterations to be run
 KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 {
-//	printf("loop (pos: %d, count: %d)\n", LOOP_POS, LOOP_CNT);
 	/**
 	 * base
 	 */
@@ -107,8 +104,6 @@ KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 
 	for (u32 i = 0, j = LOOP_POS; i < LOOP_CNT; i++, j++)
 	{
-//		print_debug_info(&tmps[gid]);
-
 		// Process the value with SHA-256
 		sha256_ctx_t ctx = {0};
 
@@ -154,7 +149,6 @@ KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 // This is where the comparison happens, to see if it's a match
 KERNEL_FQ void m97700_comp (KERN_ATTR_TMPS (sb_tmp_t))
 {
-//	printf("comp\n");
 	/**
 	 * modifier
 	 */
@@ -174,8 +168,6 @@ KERNEL_FQ void m97700_comp (KERN_ATTR_TMPS (sb_tmp_t))
 	const u32 r1 = tmps[gid].digest_buf[DGST_R1];
 	const u32 r2 = tmps[gid].digest_buf[DGST_R2];
 	const u32 r3 = tmps[gid].digest_buf[DGST_R3];
-
-//	printf("%08x %08x %08x %08x\n", r0, r1, r2, r3);
 
 #define il_pos 0
 
