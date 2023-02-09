@@ -71,23 +71,23 @@ int module_hash_decode (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSE
 
   const u8 *hash_pos = token.buf[0];
 
-  digest[0] = hex_to_u32 (hash_pos +  0);
-  digest[1] = hex_to_u32 (hash_pos +  8);
-  digest[2] = hex_to_u32 (hash_pos + 16);
-  digest[3] = hex_to_u32 (hash_pos + 24);
-  digest[4] = hex_to_u32 (hash_pos + 32);
-  digest[5] = hex_to_u32 (hash_pos + 40);
-  digest[6] = hex_to_u32 (hash_pos + 48);
-  digest[7] = hex_to_u32 (hash_pos + 56);
+  digest[0] = hex_to_u32(hash_pos +  0);
+  digest[1] = hex_to_u32(hash_pos +  8);
+  digest[2] = hex_to_u32(hash_pos + 16);
+  digest[3] = hex_to_u32(hash_pos + 24);
+  digest[4] = hex_to_u32(hash_pos + 32);
+  digest[5] = hex_to_u32(hash_pos + 40);
+  digest[6] = hex_to_u32(hash_pos + 48);
+  digest[7] = hex_to_u32(hash_pos + 56);
 
-  digest[0] = byte_swap_32 (digest[0]);
-  digest[1] = byte_swap_32 (digest[1]);
-  digest[2] = byte_swap_32 (digest[2]);
-  digest[3] = byte_swap_32 (digest[3]);
-  digest[4] = byte_swap_32 (digest[4]);
-  digest[5] = byte_swap_32 (digest[5]);
-  digest[6] = byte_swap_32 (digest[6]);
-  digest[7] = byte_swap_32 (digest[7]);
+  digest[0] = byte_swap_32(digest[0]);
+  digest[1] = byte_swap_32(digest[1]);
+  digest[2] = byte_swap_32(digest[2]);
+  digest[3] = byte_swap_32(digest[3]);
+  digest[4] = byte_swap_32(digest[4]);
+  digest[5] = byte_swap_32(digest[5]);
+  digest[6] = byte_swap_32(digest[6]);
+  digest[7] = byte_swap_32(digest[7]);
 
   // Set the salt_iter value (it's a constant value for this algorithm)
   salt->salt_iter = NUM_ITERATIONS;
@@ -112,27 +112,27 @@ int module_hash_encode (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSE
   tmp[6] = digest[6];
   tmp[7] = digest[7];
 
-  tmp[0] = byte_swap_32 (tmp[0]);
-  tmp[1] = byte_swap_32 (tmp[1]);
-  tmp[2] = byte_swap_32 (tmp[2]);
-  tmp[3] = byte_swap_32 (tmp[3]);
-  tmp[4] = byte_swap_32 (tmp[4]);
-  tmp[5] = byte_swap_32 (tmp[5]);
-  tmp[6] = byte_swap_32 (tmp[6]);
-  tmp[7] = byte_swap_32 (tmp[7]);
+  tmp[0] = byte_swap_32(tmp[0]);
+  tmp[1] = byte_swap_32(tmp[1]);
+  tmp[2] = byte_swap_32(tmp[2]);
+  tmp[3] = byte_swap_32(tmp[3]);
+  tmp[4] = byte_swap_32(tmp[4]);
+  tmp[5] = byte_swap_32(tmp[5]);
+  tmp[6] = byte_swap_32(tmp[6]);
+  tmp[7] = byte_swap_32(tmp[7]);
 
   u8 *out_buf = (u8 *) line_buf;
 
   int out_len = 0;
 
-  u32_to_hex (tmp[0], out_buf + out_len); out_len += 8;
-  u32_to_hex (tmp[1], out_buf + out_len); out_len += 8;
-  u32_to_hex (tmp[2], out_buf + out_len); out_len += 8;
-  u32_to_hex (tmp[3], out_buf + out_len); out_len += 8;
-  u32_to_hex (tmp[4], out_buf + out_len); out_len += 8;
-  u32_to_hex (tmp[5], out_buf + out_len); out_len += 8;
-  u32_to_hex (tmp[6], out_buf + out_len); out_len += 8;
-  u32_to_hex (tmp[7], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[0], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[1], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[2], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[3], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[4], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[5], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[6], out_buf + out_len); out_len += 8;
+  u32_to_hex(tmp[7], out_buf + out_len); out_len += 8;
 
   return out_len;
 }
