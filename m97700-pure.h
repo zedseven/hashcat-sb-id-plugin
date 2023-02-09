@@ -1,5 +1,5 @@
 // Constants
-#define STORED_DIGEST_SIZE        16
+#define STORED_DIGEST_SIZE        64
 #define U8S_PER_U32                4
 #define HASH_U32_LENGTH            8 // The resulting hash length will always be 8 (8 * 32 bits = 256 bits)
 #define ASCII_CHARACTERS_PER_U8    2 // 2 characters per byte in the ASCII hex representation
