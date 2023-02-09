@@ -11,6 +11,8 @@
 #include "convert.h"
 #include "shared.h"
 
+#include "m97700-pure.h"
+
 static const u32   ATTACK_EXEC    = ATTACK_EXEC_OUTSIDE_KERNEL; // Slow hash
 // The digest indices to compare (instead of comparing all bits in the keyspace, we only compare 128 bits because that should be sufficient)
 static const u32   DGST_POS0      = 0;
@@ -24,7 +26,6 @@ static const u64   KERN_TYPE      = 97700;
 static const u32   OPTI_TYPE      = OPTI_TYPE_NOT_SALTED | OPTI_TYPE_SLOW_HASH_SIMD_LOOP;
 static const u64   OPTS_TYPE      = OPTS_TYPE_PT_GENERATE_BE;
 static const u32   SALT_TYPE      = SALT_TYPE_NONE;
-static const u32   NUM_ITERATIONS = 5000;
 // Self-test pair (ST_PASS should return ST_HASH)
 static const char *ST_PASS        = "hashcat";
 static const char *ST_HASH        = "2d74c40a2f3da38aeaec15eb2988e88897ccc795743d3343f9d40d92f67c4557";
@@ -43,6 +44,11 @@ u64         module_opts_type      (MAYBE_UNUSED const hashconfig_t *hashconfig, 
 u32         module_salt_type      (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSED const user_options_t *user_options, MAYBE_UNUSED const user_options_extra_t *user_options_extra) { return SALT_TYPE;       }
 const char *module_st_hash        (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSED const user_options_t *user_options, MAYBE_UNUSED const user_options_extra_t *user_options_extra) { return ST_HASH;         }
 const char *module_st_pass        (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSED const user_options_t *user_options, MAYBE_UNUSED const user_options_extra_t *user_options_extra) { return ST_PASS;         }
+
+u64 module_tmp_size (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSED const user_options_t *user_options, MAYBE_UNUSED const user_options_extra_t *user_options_extra)
+{
+	return (const u64) sizeof sb_tmp_t;
+}
 
 int module_hash_decode (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSED void *digest_buf, MAYBE_UNUSED salt_t *salt, MAYBE_UNUSED void *esalt_buf, MAYBE_UNUSED void *hook_salt_buf, MAYBE_UNUSED hashinfo_t *hash_info, const char *line_buf, MAYBE_UNUSED const int line_len)
 {
@@ -206,7 +212,7 @@ void module_init (module_ctx_t *module_ctx)
   module_ctx->module_separator                = MODULE_DEFAULT;
   module_ctx->module_st_hash                  = module_st_hash;
   module_ctx->module_st_pass                  = module_st_pass;
-  module_ctx->module_tmp_size                 = MODULE_DEFAULT;
+  module_ctx->module_tmp_size                 = module_tmp_size;
   module_ctx->module_unstable_warning         = MODULE_DEFAULT;
   module_ctx->module_warmup_disable           = MODULE_DEFAULT;
 }

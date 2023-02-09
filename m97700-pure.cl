@@ -12,27 +12,15 @@
 #include M2S(INCLUDE_PATH/inc_platform.cl)
 #include M2S(INCLUDE_PATH/inc_common.cl)
 #include M2S(INCLUDE_PATH/inc_hash_sha256.cl)
+
+#include M2S(INCLUDE_PATH/m97700-pure.h)
 #endif
 
 #define COMPARE_M M2S(INCLUDE_PATH/inc_comp_multi.cl)
 
-// Constants
-const u32 stored_digest_size = 64;
-const u32 u8s_per_u32 = 4;
-const u32 hash_u32_length = 8; // The resulting hash length will always be 8 (8 * 32 bits = 256 bits)
-const u32 ascii_characters_per_u8 = 2; // 2 characters per byte in the ASCII hex representation
-const u32 total_iteration_count = 5000; // There's probably a better way to do this, but this needs to match the value in the module definition
-
-// This is the structure where the program state is stored between loops
-typedef struct sb_tmp
-{
-	u32 digest_buf[stored_digest_size];
-	u32 digest_len; // The length in u8s (4 u8s per u32)
-} sb_tmp_t;
-
 u32 u8_len_to_u32_len(u32 len)
 {
-	return len / u8s_per_u32 + (len % u8s_per_u32 == 0 ? 0 : 1);
+	return len / U8S_PER_U32 + (len % U8S_PER_U32 == 0 ? 0 : 1);
 }
 
 void print_debug_info(sb_tmp_t *tmp)
@@ -59,8 +47,6 @@ void to_ascii_hex_representation(u32 *destination, u32 num)
 		0x63, 0x64, 0x65, 0x66
 	};
 
-	printf("%08x\n", num);
-
 	destination[0] =
 		(lookup_table[(0xF0000000 & num) >> 28] << 24) |
 		(lookup_table[(0x0F000000 & num) >> 24] << 16) |
@@ -81,7 +67,7 @@ KERNEL_FQ void m97700_init (KERN_ATTR_TMPS (sb_tmp_t))
 	 * base
 	 */
 
-	const u64 gid = get_global_id (0);
+	const u64 gid = get_global_id(0);
 
 	if (gid >= GID_CNT) return;
 
@@ -90,16 +76,15 @@ KERNEL_FQ void m97700_init (KERN_ATTR_TMPS (sb_tmp_t))
 	 */
 
 	// Load the password provided in `pws` into the `digest_buf` field of `tmps`
-	// TODO: There could be an issue with taking the password as-is for the first hash
 	tmps[gid].digest_len = pws[gid].pw_len;
 
-	for (u32 i = 0, idx = 0; i < pws[gid].pw_len; i += u8s_per_u32, idx += 1)
+	for (u32 i = 0, idx = 0; i < pws[gid].pw_len; i += U8S_PER_U32, idx += 1)
 	{
 		// For some reason, Hashcat provides the password in little-endian byte order, so they need to be swapped
 		tmps[gid].digest_buf[idx] = hc_swap32(pws[gid].i[idx]);
 	}
 
-	printf("init\n");
+//	printf("init\n");
 }
 
 // This is where the actual processing takes place
@@ -107,12 +92,12 @@ KERNEL_FQ void m97700_init (KERN_ATTR_TMPS (sb_tmp_t))
 // LOOP_POS is the overall position out of the number of iterations to be run
 KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 {
-	printf("loop (pos: %d, count: %d)\n", LOOP_POS, LOOP_CNT);
+//	printf("loop (pos: %d, count: %d)\n", LOOP_POS, LOOP_CNT);
 	/**
 	 * base
 	 */
 
-	const u64 gid = get_global_id (0);
+	const u64 gid = get_global_id(0);
 
 	if (gid >= GID_CNT) return;
 
@@ -122,7 +107,7 @@ KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 
 	for (u32 i = 0, j = LOOP_POS; i < LOOP_CNT; i++, j++)
 	{
-		print_debug_info(&tmps[gid]);
+//		print_debug_info(&tmps[gid]);
 
 		// Process the value with SHA-256
 		sha256_ctx_t ctx = {0};
@@ -134,30 +119,30 @@ KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 		sha256_final(&ctx);
 
 		// On the final iteration, we don't want to convert the digest into the ASCII hex representations
-		if (j != total_iteration_count - 1)
+		if (j != NUM_ITERATIONS - 1)
 		{
 			// Convert the raw integers into their ASCII hex representations :)
-			for (u32 k = 0; k < hash_u32_length; k++)
+			for (u32 k = 0; k < HASH_U32_LENGTH; k++)
 			{
-				to_ascii_hex_representation(&tmps[gid].digest_buf[k * ascii_characters_per_u8], ctx.h[k]);
+				to_ascii_hex_representation(&tmps[gid].digest_buf[k * ASCII_CHARACTERS_PER_U8], ctx.h[k]);
 			}
 
 			// Optimisation: all digests after the first iteration will always be the same length, so this is only necessary at the beginning
-			if (LOOP_POS == 0)
+			if (j == 0)
 			{
 				// Set the new digest length
-				tmps[gid].digest_len = hash_u32_length * ascii_characters_per_u8 * u8s_per_u32;
+				tmps[gid].digest_len = HASH_U32_LENGTH * ASCII_CHARACTERS_PER_U8 * U8S_PER_U32;
 
 				// Zero the remaining bytes in the digest
-				memset(&tmps[gid].digest_buf[hash_u32_length * ascii_characters_per_u8],
+				memset(&tmps[gid].digest_buf[HASH_U32_LENGTH * ASCII_CHARACTERS_PER_U8],
 					   0,
-					   stored_digest_size - hash_u32_length * ascii_characters_per_u8);
+					   STORED_DIGEST_SIZE - HASH_U32_LENGTH * ASCII_CHARACTERS_PER_U8);
 			}
 		}
 		else
 		{
 			// Copy the final digest back out
-			memcpy(&tmps[gid].digest_buf, &ctx.h, hash_u32_length * u8s_per_u32);
+			memcpy(&tmps[gid].digest_buf, &ctx.h, HASH_U32_LENGTH * U8S_PER_U32);
 
 			// No need to zero the remainder of the digest, since there will be no more iterations
 		}
@@ -169,16 +154,16 @@ KERNEL_FQ void m97700_loop (KERN_ATTR_TMPS (sb_tmp_t))
 // This is where the comparison happens, to see if it's a match
 KERNEL_FQ void m97700_comp (KERN_ATTR_TMPS (sb_tmp_t))
 {
-	printf("comp\n");
+//	printf("comp\n");
 	/**
 	 * modifier
 	 */
 
-	const u64 gid = get_global_id (0);
+	const u64 gid = get_global_id(0);
 
 	if (gid >= GID_CNT) return;
 
-	const u64 lid = get_local_id (0);
+	const u64 lid = get_local_id(0);
 
 	/**
 	 * digest
@@ -190,7 +175,7 @@ KERNEL_FQ void m97700_comp (KERN_ATTR_TMPS (sb_tmp_t))
 	const u32 r2 = tmps[gid].digest_buf[DGST_R2];
 	const u32 r3 = tmps[gid].digest_buf[DGST_R3];
 
-	printf("%08x %08x %08x %08x\n", r0, r1, r2, r3);
+//	printf("%08x %08x %08x %08x\n", r0, r1, r2, r3);
 
 #define il_pos 0
 
