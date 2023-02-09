@@ -13,22 +13,22 @@
 
 #include "m97700-pure.h"
 
-static const u32   ATTACK_EXEC    = ATTACK_EXEC_OUTSIDE_KERNEL; // Slow hash
+static const u32   ATTACK_EXEC   = ATTACK_EXEC_OUTSIDE_KERNEL; // Slow hash
 // The digest indices to compare (instead of comparing all bits in the keyspace, we only compare 128 bits because that should be sufficient)
-static const u32   DGST_POS0      = 0;
-static const u32   DGST_POS1      = 1;
-static const u32   DGST_POS2      = 2;
-static const u32   DGST_POS3      = 3;
-static const u32   DGST_SIZE      = DGST_SIZE_4_8;
-static const u32   HASH_CATEGORY  = HASH_CATEGORY_RAW_HASH_SALTED; // Raw Hash salted and/or iterated
-static const char *HASH_NAME      = "SponsorBlock Public ID Derivation";
-static const u64   KERN_TYPE      = 97700;
-static const u32   OPTI_TYPE      = OPTI_TYPE_NOT_SALTED | OPTI_TYPE_SLOW_HASH_SIMD_LOOP;
-static const u64   OPTS_TYPE      = OPTS_TYPE_PT_GENERATE_BE;
-static const u32   SALT_TYPE      = SALT_TYPE_NONE;
+static const u32   DGST_POS0     = 0;
+static const u32   DGST_POS1     = 1;
+static const u32   DGST_POS2     = 2;
+static const u32   DGST_POS3     = 3;
+static const u32   DGST_SIZE     = DGST_SIZE_4_8;
+static const u32   HASH_CATEGORY = HASH_CATEGORY_RAW_HASH_SALTED; // Raw Hash salted and/or iterated
+static const char *HASH_NAME     = "SponsorBlock Public ID Derivation";
+static const u64   KERN_TYPE     = 97700;
+static const u32   OPTI_TYPE     = OPTI_TYPE_NOT_SALTED | OPTI_TYPE_SLOW_HASH_SIMD_LOOP;
+static const u64   OPTS_TYPE     = OPTS_TYPE_PT_GENERATE_BE;
+static const u32   SALT_TYPE     = SALT_TYPE_NONE;
 // Self-test pair (ST_PASS should return ST_HASH)
-static const char *ST_PASS        = "hashcat";
-static const char *ST_HASH        = "2d74c40a2f3da38aeaec15eb2988e88897ccc795743d3343f9d40d92f67c4557";
+static const char *ST_PASS       = "hashcat";
+static const char *ST_HASH       = "2d74c40a2f3da38aeaec15eb2988e88897ccc795743d3343f9d40d92f67c4557";
 
 u32         module_attack_exec    (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSED const user_options_t *user_options, MAYBE_UNUSED const user_options_extra_t *user_options_extra) { return ATTACK_EXEC;     }
 u32         module_dgst_pos0      (MAYBE_UNUSED const hashconfig_t *hashconfig, MAYBE_UNUSED const user_options_t *user_options, MAYBE_UNUSED const user_options_extra_t *user_options_extra) { return DGST_POS0;       }
